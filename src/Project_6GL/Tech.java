@@ -14,8 +14,8 @@ abstract class Player implements Technic{
         this.type = this.getClass().getSimpleName();
     }
 
-
-
+    public String getName(){return name;}
+    public String getType(){return type;}
     boolean TurnedOn;
     @Override
     public boolean IsTurnedOn(){return TurnedOn;}
