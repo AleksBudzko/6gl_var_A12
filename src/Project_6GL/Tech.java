@@ -1,27 +1,37 @@
 package Project_6GL;
 
-import java.util.Scanner;
-
 //Интерфейс общий для всей техники
 interface Technic{
-boolean IsTurnedOn();
+    boolean IsTurnedOn();
 
 }
 //Абстрактный класс для всех возможных плееров
 abstract class Player implements Technic{
+    private final String name;
+    private final String type;
+    public Player(String name) {
+        this.name = name;
+        this.type = this.getClass().getSimpleName();
+    }
+
+
+
+    boolean TurnedOn;
+    @Override
+    public boolean IsTurnedOn(){return TurnedOn;}
+    @Override
+    public String toString() {
+        return name;
+    }
 
 }
 
 //Класс видеоплеера
-class VideoPlayer extends Player{
-    boolean TurnedOn;
-    private final String name;
-    public VideoPlayer(String name){
-        this.name=name;
-    }
+class VideoPlayer extends Player {
 
-@Override
-public boolean IsTurnedOn(){return TurnedOn;}
+public VideoPlayer(String name){
+    super(name);
+}
 
 }
 
