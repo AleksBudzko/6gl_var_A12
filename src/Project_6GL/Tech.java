@@ -7,6 +7,8 @@ import java.util.Map;
 // Интерфейс общий для всей техники
 interface Technic {
     boolean IsTurnedOn();
+     void ChangeCondition();
+
 }
 
 // Абстрактный класс для всех возможных плееров
@@ -31,6 +33,7 @@ abstract class Player implements Technic {
         return name;
     }
 
+    @Override
     public void ChangeCondition() {
         turnedOn = !turnedOn;
     }
