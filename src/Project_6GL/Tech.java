@@ -1,3 +1,4 @@
+//интерфейс->абстрактный класс->класс
 package Project_6GL;
 
 //Интерфейс общий для всей техники
@@ -43,7 +44,6 @@ public class Tech {
         String condition;
         condition = (myVideoPlayer.IsTurnedOn()) ? "включен" : "выключен";
         System.out.println("Название:"+myVideoPlayer.getName()+". Тип:" + myVideoPlayer.getType()+". Состояние:"+ condition+".");
-
 
 
     }
