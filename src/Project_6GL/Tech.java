@@ -16,9 +16,9 @@ abstract class Player implements Technic{
 
     public String getName(){return name;}
     public String getType(){return type;}
-    boolean TurnedOn;
+    boolean turnedOn = false;
     @Override
-    public boolean IsTurnedOn(){return TurnedOn;}
+    public boolean IsTurnedOn(){return turnedOn;}
     @Override
     public String toString() {
         return name;
@@ -38,6 +38,12 @@ public VideoPlayer(String name){
 //Основной класс
 public class Tech {
     public static void main(String[] args) {
+
+        VideoPlayer myVideoPlayer = new VideoPlayer("Sony");
+        String condition;
+        condition = (myVideoPlayer.IsTurnedOn()) ? "включен" : "выключен";
+        System.out.println("Название:"+myVideoPlayer.getName()+". Тип:" + myVideoPlayer.getType()+". Состояние:"+ condition+".");
+
 
 
     }
