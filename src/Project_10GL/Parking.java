@@ -1,6 +1,7 @@
 package Project_10GL;
 
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 class ParkingLot {
@@ -12,13 +13,15 @@ class ParkingLot {
 
     // Метод для приезда машины
     public boolean parkCar(int preferredSpot) {
+        // Проверяем, что место начинается с 1, преобразуем в индекс массива
+        int index = preferredSpot - 1;
         System.out.println("Машина пытается припарковаться на месте " + preferredSpot);
 
         // Проверяем места от заданного до конца
-        for (int i = preferredSpot; i < parkingSpaces.length; i++) {
+        for (int i = index; i < parkingSpaces.length; i++) {
             if (!parkingSpaces[i]) {
                 parkingSpaces[i] = true; // Занимаем место
-                System.out.println("Машина припарковалась на месте " + i);
+                System.out.println("Машина припарковалась на месте " + (i + 1));
                 return true;
             }
         }
@@ -29,8 +32,10 @@ class ParkingLot {
 
     // Метод для отъезда машины
     public boolean leaveParking(int spot) {
-        if (spot >= 0 && spot < parkingSpaces.length && parkingSpaces[spot]) {
-            parkingSpaces[spot] = false; // Освобождаем место
+        // Проверяем, что место начинается с 1, преобразуем в индекс массива
+        int index = spot - 1;
+        if (index >= 0 && index < parkingSpaces.length && parkingSpaces[index]) {
+            parkingSpaces[index] = false; // Освобождаем место
             System.out.println("Машина уехала с места " + spot);
             return true;
         }
@@ -56,29 +61,43 @@ public class Parking {
         // Пользователь задает количество мест на парковке
         int parkingSize;
         while (true) {
-            System.out.print("Введите количество мест на парковке (положительное число): ");
-            parkingSize = scanner.nextInt();
-            if (parkingSize > 0) break; // Проверка, что введено положительное число
-            System.out.println("Ошибка! Количество мест должно быть положительным числом.");
+            System.out.print("Введите количество мест на парковке: ");
+            try {
+                parkingSize = scanner.nextInt();
+                if (parkingSize > 0) break; // Проверка, что введено положительное число
+                System.out.println("Некорректный ввод. Количество мест должно быть положительным числом.");
+            } catch (InputMismatchException e) {
+                System.out.println("Некорректный ввод. Введите целое число.");
+                scanner.next(); // Сбрасываем неверный ввод
+            }
         }
 
         ParkingLot parkingLot = new ParkingLot(parkingSize);
 
         // Создаем HashMap для выбора действия
         HashMap<Integer, Runnable> actions = new HashMap<>();
-        actions.put(1, () -> {
-            parkingLot.printParkingState();
-        });
+        actions.put(1, () -> parkingLot.printParkingState());
         actions.put(2, () -> {
-            System.out.print("Введите место, с которого хотите припарковаться: ");
-            int spot = scanner.nextInt();
-            parkingLot.parkCar(spot);
+            System.out.print("Введите место, на которое хотите припарковаться: ");
+            try {
+                int spot = scanner.nextInt();
+                parkingLot.parkCar(spot);
+            } catch (InputMismatchException e) {
+                System.out.println("Некорректный ввод. Введите целое число.");
+                scanner.next(); // Сбрасываем неверный ввод
+            }
         });
         actions.put(3, () -> {
             System.out.print("Введите место, откуда уезжает машина: ");
-            int spot = scanner.nextInt();
-            parkingLot.leaveParking(spot);
+            try {
+                int spot = scanner.nextInt();
+                parkingLot.leaveParking(spot);
+            } catch (InputMismatchException e) {
+                System.out.println("Некорректный ввод. Введите целое число.");
+                scanner.next(); // Сбрасываем неверный ввод
+            }
         });
+        actions.put(0, () -> System.out.println("Выход из программы."));
 
         // Основное меню
         while (true) {
@@ -88,24 +107,24 @@ public class Parking {
             System.out.println("3 - Убрать машину");
             System.out.println("0 - Выход");
 
-            int choice = scanner.nextInt();
-            if (choice == 0) {
-                System.out.println("Выход из программы.");
-                break;
-            }
-
-            Runnable action = actions.get(choice);
-            if (action != null) {
-                action.run();
-            } else {
-                System.out.println("Некорректный выбор, попробуйте снова.");
+            int choice;
+            try {
+                choice = scanner.nextInt();
+                Runnable action = actions.get(choice);
+                if (action != null) {
+                    action.run();
+                    if (choice == 0) {
+                        break; // Выход из цикла, если выбрано действие выхода
+                    }
+                } else {
+                    System.out.println("Некорректный выбор, попробуйте снова.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Некорректный ввод. Введите целое число.");
+                scanner.next(); // Сбрасываем неверный ввод
             }
         }
 
         scanner.close();
     }
 }
-
-
-
-
