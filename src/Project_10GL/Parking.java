@@ -5,50 +5,50 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 class ParkingLot {
-    private boolean[] parkingSpaces; // Массив парковочных мест (true = занято, false = свободно)
+    private final boolean[] parkingSpaces; // Array of parking spaces (true = occupied, false = free)
 
     public ParkingLot(int size) {
-        parkingSpaces = new boolean[size]; // Инициализация парковки с заданным количеством мест
+        parkingSpaces = new boolean[size]; // Initialize the parking lot with the given number of spaces
     }
 
-    // Метод для приезда машины
+    // Method for parking a car
     public boolean parkCar(int preferredSpot) {
-        // Проверяем, что место начинается с 1, преобразуем в индекс массива
+        // Check that the spot starts at 1, convert to array index
         int index = preferredSpot - 1;
-        System.out.println("Машина пытается припарковаться на месте " + preferredSpot);
+        System.out.println("Car is trying to park at spot " + preferredSpot);
 
-        // Проверяем места от заданного до конца
+        // Check spaces from the given spot to the end
         for (int i = index; i < parkingSpaces.length; i++) {
             if (!parkingSpaces[i]) {
-                parkingSpaces[i] = true; // Занимаем место
-                System.out.println("Машина припарковалась на месте " + (i + 1));
+                parkingSpaces[i] = true; // Occupy the spot
+                System.out.println("Car parked at spot " + (i + 1));
                 return true;
             }
         }
 
-        System.out.println("Нет свободных мест для парковки!");
-        return false; // Нет свободных мест
+        System.out.println("No available parking spots!");
+        return false; // No free spots
     }
 
-    // Метод для отъезда машины
+    // Method for leaving the parking spot
     public boolean leaveParking(int spot) {
-        // Проверяем, что место начинается с 1, преобразуем в индекс массива
+        // Check that the spot starts at 1, convert to array index
         int index = spot - 1;
         if (index >= 0 && index < parkingSpaces.length && parkingSpaces[index]) {
-            parkingSpaces[index] = false; // Освобождаем место
-            System.out.println("Машина уехала с места " + spot);
+            parkingSpaces[index] = false; // Free up the spot
+            System.out.println("Car left spot " + spot);
             return true;
         }
 
-        System.out.println("Ошибка: место " + spot + " уже свободно или некорректное.");
-        return false; // Некорректное место или уже свободно
+        System.out.println("Error: Spot " + spot + " is already free or invalid.");
+        return false; // Invalid spot or already free
     }
 
-    // Вывод состояния парковки
+    // Print the state of the parking lot
     public void printParkingState() {
-        System.out.print("Состояние парковки: ");
-        for (int i = 0; i < parkingSpaces.length; i++) {
-            System.out.print((parkingSpaces[i] ? "[X]" : "[ ]") + " "); // [X] занято, [ ] свободно
+        System.out.print("Parking lot state: ");
+        for (boolean parkingSpace : parkingSpaces) {
+            System.out.print((parkingSpace ? "[X]" : "[ ]") + " "); // [X] occupied, [ ] free
         }
         System.out.println();
     }
@@ -58,54 +58,54 @@ public class Parking {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        // Пользователь задает количество мест на парковке
+        // User sets the number of parking spaces
         int parkingSize;
         while (true) {
-            System.out.print("Введите количество мест на парковке: ");
+            System.out.print("Enter the number of parking spaces: ");
             try {
                 parkingSize = scanner.nextInt();
-                if (parkingSize > 0) break; // Проверка, что введено положительное число
-                System.out.println("Некорректный ввод. Количество мест должно быть положительным числом.");
+                if (parkingSize > 0) break; // Check that a positive number is entered
+                System.out.println("Invalid input. The number of spaces must be a positive number.");
             } catch (InputMismatchException e) {
-                System.out.println("Некорректный ввод. Введите целое число.");
-                scanner.next(); // Сбрасываем неверный ввод
+                System.out.println("Invalid input. Please enter an integer.");
+                scanner.next(); // Clear invalid input
             }
         }
 
         ParkingLot parkingLot = new ParkingLot(parkingSize);
 
-        // Создаем HashMap для выбора действия
+        // Create a HashMap for action selection
         HashMap<Integer, Runnable> actions = new HashMap<>();
-        actions.put(1, () -> parkingLot.printParkingState());
+        actions.put(1, parkingLot::printParkingState);
         actions.put(2, () -> {
-            System.out.print("Введите место, на которое хотите припарковаться: ");
+            System.out.print("Enter the spot where you want to park: ");
             try {
                 int spot = scanner.nextInt();
                 parkingLot.parkCar(spot);
             } catch (InputMismatchException e) {
-                System.out.println("Некорректный ввод. Введите целое число.");
-                scanner.next(); // Сбрасываем неверный ввод
+                System.out.println("Invalid input. Please enter an integer.");
+                scanner.next(); // Clear invalid input
             }
         });
         actions.put(3, () -> {
-            System.out.print("Введите место, откуда уезжает машина: ");
+            System.out.print("Enter the spot from which the car is leaving: ");
             try {
                 int spot = scanner.nextInt();
                 parkingLot.leaveParking(spot);
             } catch (InputMismatchException e) {
-                System.out.println("Некорректный ввод. Введите целое число.");
-                scanner.next(); // Сбрасываем неверный ввод
+                System.out.println("Invalid input. Please enter an integer.");
+                scanner.next(); // Clear invalid input
             }
         });
-        actions.put(0, () -> System.out.println("Выход из программы."));
+        actions.put(0, () -> System.out.println("Exiting the program."));
 
-        // Основное меню
+        // Main menu
         while (true) {
-            System.out.println("\nВыберите действие:");
-            System.out.println("1 - Показать состояние парковки");
-            System.out.println("2 - Припарковать машину");
-            System.out.println("3 - Убрать машину");
-            System.out.println("0 - Выход");
+            System.out.println("\nChoose an action:");
+            System.out.println("1 - Show parking lot state");
+            System.out.println("2 - Park a car");
+            System.out.println("3 - Remove a car");
+            System.out.println("0 - Exit");
 
             int choice;
             try {
@@ -114,14 +114,14 @@ public class Parking {
                 if (action != null) {
                     action.run();
                     if (choice == 0) {
-                        break; // Выход из цикла, если выбрано действие выхода
+                        break; // Exit the loop if the exit action is chosen
                     }
                 } else {
-                    System.out.println("Некорректный выбор, попробуйте снова.");
+                    System.out.println("Invalid choice, please try again.");
                 }
             } catch (InputMismatchException e) {
-                System.out.println("Некорректный ввод. Введите целое число.");
-                scanner.next(); // Сбрасываем неверный ввод
+                System.out.println("Invalid input. Please enter an integer.");
+                scanner.next(); // Clear invalid input
             }
         }
 
