@@ -4,14 +4,13 @@ import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Map;
 
-// Интерфейс общий для всей техники
+// Interface common for all devices
 interface Technic {
     boolean IsTurnedOn();
-     void ChangeCondition();
-
+    void ChangeCondition();
 }
 
-// Абстрактный класс для всех возможных плееров
+// Abstract class for all possible players
 abstract class Player implements Technic {
     private final String name;
     private final String type;
@@ -39,14 +38,14 @@ abstract class Player implements Technic {
     }
 }
 
-// Класс видеоплеера
+// Video player class
 class VideoPlayer extends Player {
     public VideoPlayer(String name) {
         super(name);
     }
 }
 
-// Основной класс
+// Main class
 public class Tech {
     public static void main(String[] args) {
         VideoPlayer myVideoPlayer = new VideoPlayer("Sony");
@@ -58,8 +57,8 @@ public class Tech {
         videos.put(3, "Cybersport");
 
         while (true) {
-            String[] options = {"Включить/выключить плеер", "Выбрать видео", "Информация о плеере", "Exit"};
-            System.out.println("Выбирите действие:");
+            String[] options = {"Turn on/off the player", "Select a video", "Player information", "Exit"};
+            System.out.println("Choose an action:");
             for (int i = 0; i < options.length; i++) {
                 System.out.println((i + 1) + ": " + options[i]);
             }
@@ -69,46 +68,46 @@ public class Tech {
             try {
                 choice = Integer.parseInt(input);
             } catch (NumberFormatException e) {
-                System.out.println("Некорректный выбор.");
+                System.out.println("Invalid choice.");
                 continue;
             }
 
             switch (choice) {
                 case 1 -> {
                     myVideoPlayer.ChangeCondition();
-                    String condition = myVideoPlayer.IsTurnedOn() ? "включен" : "выключен";
-                    System.out.println("Видеоплеер " + condition);
+                    String condition = myVideoPlayer.IsTurnedOn() ? "on" : "off";
+                    System.out.println("The video player is " + condition);
                 }
                 case 2 -> {
-                    System.out.println("Доступные видео:");
+                    System.out.println("Available videos:");
                     for (Map.Entry<Integer, String> entry : videos.entrySet()) {
                         System.out.println(entry.getKey() + ": " + entry.getValue());
                     }
 
-                    System.out.print("Выберите номер видео: ");
+                    System.out.print("Select the video number: ");
                     int videoChoice;
                     try {
                         videoChoice = Integer.parseInt(scanner.next());
                         if (videos.containsKey(videoChoice)) {
-                            System.out.println("Вы выбрали: " + videos.get(videoChoice));
+                            System.out.println("You selected: " + videos.get(videoChoice));
                         } else {
-                            System.out.println("Некорректный выбор видео.");
+                            System.out.println("Invalid video choice.");
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println("Некорректный ввод. Пожалуйста, введите номер.");
+                        System.out.println("Invalid input. Please enter a number.");
                     }
                 }
                 case 3 -> {
-                    System.out.println("Вот информация о Видеоплеере:");
-                    String condition = (myVideoPlayer.IsTurnedOn()) ? "включен" : "выключен";
-                    System.out.println("Название:"+myVideoPlayer.getName()+"  Тип:" + myVideoPlayer.getType()+"  Состояние:"+ condition);
+                    System.out.println("Here is the information about the video player:");
+                    String condition = (myVideoPlayer.IsTurnedOn()) ? "on" : "off";
+                    System.out.println("Name: " + myVideoPlayer.getName() + "  Type: " + myVideoPlayer.getType() + "  Condition: " + condition);
                 }
                 case 4 -> {
-                    System.out.println("Выход из программы.");
+                    System.out.println("Exiting the program.");
                     scanner.close();
-                    return; // Завершаем выполнение программы
+                    return; // End program execution
                 }
-                default -> System.out.println("Некорректный выбор.");
+                default -> System.out.println("Invalid choice.");
             }
         }
     }
