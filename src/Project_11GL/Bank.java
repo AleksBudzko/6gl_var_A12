@@ -1,15 +1,20 @@
 package Project_11GL;
 
-import java.util.*;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-// Интерфейс Наблюдателя
+// Observer interface
 interface CashObserver {
     void update(int amount);
 }
 
-// Класс Субъекта
+// Subject class
 class CashSubject {
     private final List<CashObserver> observers = new ArrayList<>();
 
@@ -24,11 +29,11 @@ class CashSubject {
     }
 }
 
-// Банковская система
+// Banking system
 class BankSystem implements CashObserver {
-    private static final int MAX_CASH = 10000; // Максимум наличных в кассе
-    static final int MIN_CASH = 2000;         // Минимум наличных в кассе
-    static final int CASH_FROM_STORAGE = 5000; // Сумма пополнения из хранилища
+    private static final int MAX_CASH = 10000; // Maximum cash in the register
+    static final int MIN_CASH = 2000;         // Minimum cash in the register
+    static final int CASH_FROM_STORAGE = 5000; // Amount to replenish from storage
 
     private int cashInRegister;
     private int cashInStorage;
@@ -38,7 +43,7 @@ class BankSystem implements CashObserver {
     public BankSystem(int initialCash, int initialStorage, CashSubject cashSubject) {
         this.cashInRegister = initialCash;
         this.cashInStorage = initialStorage;
-        cashSubject.addObserver(this); // Регистрация как наблюдателя
+        cashSubject.addObserver(this); // Register as an observer
     }
 
     public void addClient(Client client) {
@@ -57,26 +62,26 @@ class BankSystem implements CashObserver {
         lock.lock();
         try {
             if (amount <= 0) {
-                System.out.println("Сумма для снятия должна быть положительной.");
+                System.out.println("Withdrawal amount must be positive.");
                 return;
             }
 
             if (cashInRegister >= amount) {
                 cashInRegister -= amount;
-                System.out.println("Снятие: " + amount + ". Осталось в кассе: " + cashInRegister);
+                System.out.println("Withdrawal: " + amount + ". Remaining in register: " + cashInRegister);
             } else {
-                // Пополнение кассы, если недостаточно средств
+                // Replenish the register if there is insufficient cash
                 int shortage = amount - cashInRegister;
-                System.out.println("Недостаточно средств в кассе для снятия " + amount + ". Требуется пополнение на " + shortage + ".");
+                System.out.println("Insufficient cash in register to withdraw " + amount + ". Shortage: " + shortage + ".");
 
                 if (cashInStorage >= shortage) {
                     cashInRegister += shortage;
                     cashInStorage -= shortage;
-                    System.out.println("Касса пополнена на " + shortage + " из хранилища. Сумма в хранилище: " + cashInStorage);
+                    System.out.println("Register replenished with " + shortage + " from storage. Remaining in storage: " + cashInStorage);
                     cashInRegister -= amount;
-                    System.out.println("Снятие: " + amount + ". Осталось в кассе: " + cashInRegister);
+                    System.out.println("Withdrawal: " + amount + ". Remaining in register: " + cashInRegister);
                 } else {
-                    System.out.println("Невозможно пополнить кассу. Недостаточно средств в хранилище.");
+                    System.out.println("Unable to replenish the register. Insufficient storage funds.");
                 }
             }
         } finally {
@@ -89,9 +94,9 @@ class BankSystem implements CashObserver {
         try {
             if (amount > 0) {
                 cashInRegister += amount;
-                System.out.println("Пополнение: " + amount + ". В кассе: " + cashInRegister);
+                System.out.println("Deposit: " + amount + ". Register total: " + cashInRegister);
             } else {
-                System.out.println("Сумма должна быть положительной.");
+                System.out.println("Deposit amount must be positive.");
             }
         } finally {
             lock.unlock();
@@ -105,13 +110,13 @@ class BankSystem implements CashObserver {
                 int toStorage = cashInRegister - MAX_CASH;
                 cashInRegister -= toStorage;
                 cashInStorage += toStorage;
-                System.out.println("Перевод в хранилище: " + toStorage + ". Хранилище: " + cashInStorage);
+                System.out.println("Transferred to storage: " + toStorage + ". Storage total: " + cashInStorage);
             } else if (cashInRegister < MIN_CASH) {
                 int fromStorage = Math.min(CASH_FROM_STORAGE, cashInStorage);
                 if (fromStorage > 0) {
                     cashInRegister += fromStorage;
                     cashInStorage -= fromStorage;
-                    System.out.println("Пополнение из хранилища: " + fromStorage + ". Хранилище: " + cashInStorage);
+                    System.out.println("Replenished from storage: " + fromStorage + ". Storage total: " + cashInStorage);
                 }
             }
         } finally {
@@ -133,7 +138,7 @@ class BankSystem implements CashObserver {
     }
 }
 
-// Клиент
+// Client
 class Client {
     private final String name;
     private final String operation;
@@ -146,16 +151,16 @@ class Client {
     }
 
     public void performOperation(BankSystem bank) {
-        System.out.println("Обслуживается клиент: " + name);
+        System.out.println("Serving client: " + name);
         switch (operation.toLowerCase()) {
-            case "снять" -> bank.withdrawCash(amount);
-            case "пополнить" -> bank.depositCash(amount);
-            default -> System.out.println("Неизвестная операция: " + operation);
+            case "withdraw" -> bank.withdrawCash(amount);
+            case "deposit" -> bank.depositCash(amount);
+            default -> System.out.println("Unknown operation: " + operation);
         }
     }
 }
 
-// Поток для пополнения наличных
+// Thread for cash refilling
 class CashRefiller extends Thread {
     private final CashSubject cashSubject;
     private final BankSystem bank;
@@ -172,7 +177,7 @@ class CashRefiller extends Thread {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(5000); // Проверка каждые 5 секунд
+                Thread.sleep(5000); // Check every 5 seconds
                 if (bank.getCashInRegister() < refillThreshold) {
                     cashSubject.notifyObservers(BankSystem.CASH_FROM_STORAGE);
                 }
@@ -188,7 +193,7 @@ class CashRefiller extends Thread {
     }
 }
 
-// Основной класс
+// Main class
 public class Bank {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -198,58 +203,58 @@ public class Bank {
         cashRefiller.start();
 
         while (true) {
-            System.out.println("\nВыберите действие: \n1 - Снять \n2 - Пополнить \n3 - Посмотреть кассу \n0 - Выход");
+            System.out.println("\nChoose an action: \n1 - Withdraw \n2 - Deposit \n3 - Check cash \n0 - Exit");
             int choice;
             try {
                 choice = scanner.nextInt();
             } catch (InputMismatchException e) {
-                System.out.println("Ошибка ввода. Пожалуйста, введите число.");
-                scanner.next(); // Очистка некорректного ввода
+                System.out.println("Input error. Please enter a number.");
+                scanner.next(); // Clear incorrect input
                 continue;
             }
 
             if (choice == 0) {
                 cashRefiller.stopRefiller();
-                System.out.println("Программа завершена.");
+                System.out.println("Program terminated.");
                 break;
             }
 
             switch (choice) {
-                case 1 -> { // Снятие наличных
-                    System.out.print("Введите имя клиента: ");
+                case 1 -> { // Withdraw cash
+                    System.out.print("Enter client name: ");
                     String withdrawName = scanner.next();
-                    System.out.print("Введите сумму для снятия: ");
+                    System.out.print("Enter withdrawal amount: ");
                     int withdrawAmount;
                     try {
                         withdrawAmount = scanner.nextInt();
                     } catch (InputMismatchException e) {
-                        System.out.println("Некорректный ввод суммы. Пожалуйста, введите число.");
-                        scanner.next(); // Очистка некорректного ввода
+                        System.out.println("Invalid amount input. Please enter a number.");
+                        scanner.next(); // Clear incorrect input
                         continue;
                     }
-                    bank.addClient(new Client(withdrawName, "снять", withdrawAmount));
+                    bank.addClient(new Client(withdrawName, "withdraw", withdrawAmount));
                     bank.processClients();
                 }
-                case 2 -> { // Пополнение наличных
-                    System.out.print("Введите имя клиента: ");
+                case 2 -> { // Deposit cash
+                    System.out.print("Enter client name: ");
                     String depositName = scanner.next();
-                    System.out.print("Введите сумму для пополнения: ");
+                    System.out.print("Enter deposit amount: ");
                     int depositAmount;
                     try {
                         depositAmount = scanner.nextInt();
                     } catch (InputMismatchException e) {
-                        System.out.println("Некорректный ввод суммы. Пожалуйста, введите число.");
-                        scanner.next(); // Очистка некорректного ввода
+                        System.out.println("Invalid amount input. Please enter a number.");
+                        scanner.next(); // Clear incorrect input
                         continue;
                     }
-                    bank.addClient(new Client(depositName, "пополнить", depositAmount));
+                    bank.addClient(new Client(depositName, "deposit", depositAmount));
                     bank.processClients();
                 }
                 case 3 -> {
-                    System.out.println("Наличность в кассе: " + bank.getCashInRegister());
-                    System.out.println("Наличность в хранилище: " + bank.getCashInStorage());
+                    System.out.println("Cash in register: " + bank.getCashInRegister());
+                    System.out.println("Cash in storage: " + bank.getCashInStorage());
                 }
-                default -> System.out.println("Неверный выбор.");
+                default -> System.out.println("Invalid choice.");
             }
         }
 
