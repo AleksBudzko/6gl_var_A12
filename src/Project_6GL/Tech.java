@@ -4,47 +4,6 @@ import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Map;
 
-// Interface common for all devices
-interface Technic {
-    boolean IsTurnedOn();
-    void ChangeCondition();
-}
-
-// Abstract class for all possible players
-abstract class Player implements Technic {
-    private final String name;
-    private final String type;
-
-    public Player(String name) {
-        this.name = name;
-        this.type = this.getClass().getSimpleName();
-    }
-
-    public String getName() { return name; }
-    public String getType() { return type; }
-    protected boolean turnedOn = false;
-
-    @Override
-    public boolean IsTurnedOn() { return turnedOn; }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    @Override
-    public void ChangeCondition() {
-        turnedOn = !turnedOn;
-    }
-}
-
-// Video player class
-class VideoPlayer extends Player {
-    public VideoPlayer(String name) {
-        super(name);
-    }
-}
-
 // Main class
 public class Tech {
     public static void main(String[] args) {
